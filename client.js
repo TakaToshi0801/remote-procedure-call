@@ -6,16 +6,16 @@ class Client {
     this.socket = net.createConnection(address);
     this.socket.setTimeout(3000);
     this.socket.on("connect", () => {
-      console.log("connected");
+      console.log("Connected");
     });
-    this.socket.on("data", () => {
-      console.log("Receiving json file...");
+    this.socket.on("data", (data) => {
+      console.log("Receive data: " + data.toString());
     });
     this.socket.on("end", () => {
-      console.log("disconnected");
+      console.log("Disconnected");
     });
     this.socket.on("timeout", () => {
-      console.log("socket timeout");
+      console.log("Socket timeout");
       this.socket.destroy();
     });
     this.socket.on("error", (err) => {
@@ -23,6 +23,7 @@ class Client {
     });
   }
 
+  // データ送信用のメソッド
   async write(data) {
     try {
       await new Promise((resolve, reject) => {
@@ -40,11 +41,14 @@ class Client {
     }
   }
 
+  // データを順次送信するメソッド
   async sendAllData(data, interval) {
     for (let i = 0; i < data.length; i++) {
       try {
+        // 非同期処理でJSONオブジェクトを文字列にしてサーバーに送信
         await this.write(JSON.stringify(data[i]));
         console.log(`Sent data: ${JSON.stringify(data[i])}`);
+        // 最後のデータじゃない場合、指定された間隔だけ待機
         if (i < data.length - 1) {
           await new Promise((resolve) => setTimeout(resolve, interval));
         }
@@ -53,6 +57,7 @@ class Client {
         throw error;
       }
     }
+    // 全てのデータを送信した後、ソケットを切断するために、endメソッドを呼び出して、Promiseを待機
     await new Promise((resolve) => this.socket.end(resolve));
   }
 }
@@ -89,4 +94,4 @@ client.sendAllData([
     "param_types": "string[]",
     "id": 5
   }
-])
+], 0)
