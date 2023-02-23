@@ -3,10 +3,9 @@ import json
 import os
 import math
 
-
 class Server:
     def __init__(self, socket_path):
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket_path = socket_path
     
     def start(self):
@@ -16,13 +15,13 @@ class Server:
             pass
 
         print('Starting on up {}'.format(self.socket_path))
-        self.sock.bind(self.socket_path)
-        self.sock.listen(1)
+        self.socket.bind(self.socket_path)
+        self.socket.listen(1)
         self.accepted()
         
     def accepted(self):
         while True:
-            connection, address = self.sock.accept()
+            connection, address = self.socket.accept()
             try:
                 while True:
                     recv_data = connection.recv(1024).decode('utf-8')
@@ -43,7 +42,6 @@ class Server:
             connection.sendall(response.encode())
         except Exception:
             pass
-
 
 class JsonProcessor:
     processor = {
